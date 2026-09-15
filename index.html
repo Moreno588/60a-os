@@ -23,13 +23,18 @@
     rsvpSheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRs4A_yhE9k5U8hzW1NlnoLQtRmsIZ72LpJiEehTIcb35GSJAHFvYVnVDVZ6saCFGLi6ADX1Mx7-Ht/pub?output=csv",
 
     // Link de la carpeta de Google Drive donde los invitados subirán SUS fotos.
-    // Esa carpeta debe compartirse como "Cualquier persona con el enlace" -> "Editor"
-    // para que puedan subir archivos sin pedir permiso.
+    // Ya no se usa directamente: ahora se sube a través de uploadWebAppUrl,
+    // así nadie necesita acceso de "Editor" a la carpeta.
     guestUploadUrl: "",
 
+    // URL del Apps Script (Web App, termina en /exec) que recibe las fotos
+    // que suben los invitados desde el formulario de la página y las guarda
+    // en la carpeta de Drive, sin darles acceso directo a la carpeta.
+    uploadWebAppUrl: "https://script.google.com/macros/s/AKfycbyZrHXKFhyU0fuC1uahJGEQq9RVNKdmIoTT1NNPHjUcvwFNA44N1T7YfsPBmWEa5_Ub7g/exec",
+
     // Link para que los invitados solo VEAN las fotos que ya se han subido
-    // (puede ser la misma carpeta compartida como "Lector", o la misma de arriba).
-    guestViewUrl: "",
+    // (comparte esa carpeta como "Lector" para que nadie pueda modificarla).
+    guestViewUrl: "https://drive.google.com/drive/folders/1VH_KboA9cm62h766fidzsa-PQZ-NiXAa?usp=sharing",
 
     // ID de la carpeta de Google Drive con las fotos del carrusel
     // (ya tomado del link que compartiste)
@@ -420,6 +425,66 @@
     justify-content:center;
     gap:16px;
   }
+  .upload-widget{
+    margin-top:30px;
+    max-width:420px;
+    margin-left:auto; margin-right:auto;
+  }
+  .upload-picker{
+    display:inline-block;
+    padding:14px 32px;
+    border:1px dashed rgba(217,185,138,0.5);
+    color:rgba(242,232,213,0.85);
+    font-size:0.9rem;
+    letter-spacing:0.03em;
+    cursor:pointer;
+    transition:background 0.2s ease;
+  }
+  .upload-picker:hover{ background:rgba(217,185,138,0.08); }
+  .upload-picker input{
+    position:absolute;
+    width:1px; height:1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+  }
+  .upload-filelist{
+    list-style:none;
+    margin:18px 0 0;
+    padding:0;
+    text-align:left;
+    max-height:140px;
+    overflow-y:auto;
+  }
+  .upload-filelist li{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    font-size:0.85rem;
+    color:rgba(242,232,213,0.75);
+    padding:6px 0;
+    border-bottom:1px dashed rgba(217,185,138,0.2);
+  }
+  .upload-filelist li span.file-state{
+    color:var(--gold-light);
+    font-style:italic;
+    white-space:nowrap;
+  }
+  .upload-widget .btn{
+    margin-top:20px;
+  }
+  .upload-widget .btn:disabled{
+    opacity:0.4;
+    cursor:not-allowed;
+    background:none;
+    color:var(--cream);
+  }
+  .upload-status{
+    margin-top:14px;
+    font-size:0.85rem;
+    font-style:italic;
+    color:rgba(242,232,213,0.75);
+    min-height:1.2em;
+  }
   .upload-buttons .btn{ margin-top:0; }
   .btn-outline{
     border-color:rgba(217,185,138,0.5);
@@ -486,10 +551,13 @@
     margin-top:34px;
     padding:16px 40px;
     border:1px solid var(--gold-light);
+    background:none;
     color:var(--cream);
     text-decoration:none;
+    font-family:'Jost', sans-serif;
     font-size:0.92rem;
     letter-spacing:0.05em;
+    cursor:pointer;
     transition:background 0.25s ease, color 0.25s ease;
   }
   .btn:hover{ background:var(--gold-light); color:var(--ink); }
@@ -697,7 +765,12 @@
     font-size:0.85rem;
     font-style:italic;
   }
-  footer .ornament{ margin:0 auto 26px; opacity:0.9; }
+  footer .footer-line{
+    width:min(90%, 480px);
+    height:1px;
+    margin:0 auto 30px;
+    background:linear-gradient(to right, transparent, rgba(217,185,138,0.6), transparent);
+  }
   footer .monogram{
     font-family:'Dancing Script', cursive;
     font-weight:700;
@@ -983,17 +1056,25 @@
       <h2 class="section-title">¡Que no falte tu foto!</h2>
       <div class="ornament"><svg viewBox="0 0 64 20"><path d="M0 10 H24 M40 10 H64" /><circle cx="32" cy="10" r="4"/></svg></div>
       <p>¿Tomaste fotos durante la celebración? Compártelas aquí y hazlas parte de este álbum.</p>
-      <div class="upload-buttons">
-        <a href="#" class="btn disabled" id="upload-btn">Subir mis fotos</a>
-        <a href="#" class="btn btn-outline disabled" id="view-btn">Ver fotos de los invitados</a>
+
+      <div class="upload-widget" id="upload-widget">
+        <label class="upload-picker" for="photo-input">
+          <input type="file" id="photo-input" accept="image/*,video/*" multiple>
+          Elegir fotos
+        </label>
+        <ul class="upload-filelist" id="upload-filelist"></ul>
+        <button class="btn" id="upload-submit" disabled>Subir fotos</button>
+        <div class="upload-status" id="upload-status"></div>
       </div>
+
+      <a href="#" class="btn btn-outline disabled" id="view-btn" style="margin-top:26px;">Ver fotos de los invitados</a>
       <div class="rsvp-note" id="upload-note">Muy pronto habilitaremos este espacio.</div>
     </div>
   </div>
 </section>
 
 <footer>
-  <div class="ornament"><svg viewBox="0 0 64 20"><path d="M0 10 H24 M40 10 H64" /><circle cx="32" cy="10" r="4"/></svg></div>
+  <div class="footer-line"></div>
   <div class="monogram">A &amp; C</div>
   1966 · 2026 — 60 años de amor
 </footer>
@@ -1031,19 +1112,12 @@
     rsvpNote.style.display = 'none';
   }
 
-  /* ---------------- BOTÓN SUBIR FOTOS (INVITADOS) ---------------- */
-  var uploadBtn = document.getElementById('upload-btn');
+  /* ---------------- SUBIR FOTOS (INVITADOS) ---------------- */
   var uploadNote = document.getElementById('upload-note');
   var viewBtn = document.getElementById('view-btn');
-  var uploadReady = cfg.guestUploadUrl && cfg.guestUploadUrl.trim() !== "";
   var viewReady = cfg.guestViewUrl && cfg.guestViewUrl.trim() !== "";
+  var uploadReady = cfg.uploadWebAppUrl && cfg.uploadWebAppUrl.trim() !== "";
 
-  if(uploadReady){
-    uploadBtn.href = cfg.guestUploadUrl;
-    uploadBtn.target = "_blank";
-    uploadBtn.rel = "noopener";
-    uploadBtn.classList.remove('disabled');
-  }
   if(viewReady){
     viewBtn.href = cfg.guestViewUrl;
     viewBtn.target = "_blank";
@@ -1052,6 +1126,108 @@
   }
   if(uploadReady || viewReady){
     uploadNote.style.display = 'none';
+  }
+
+  var photoInput = document.getElementById('photo-input');
+  var uploadSubmit = document.getElementById('upload-submit');
+  var uploadFilelist = document.getElementById('upload-filelist');
+  var uploadStatus = document.getElementById('upload-status');
+  var uploadWidget = document.getElementById('upload-widget');
+  var MAX_UPLOAD_MB = 15;
+  var selectedFiles = [];
+
+  if(!uploadReady){
+    uploadWidget.style.display = 'none';
+  } else {
+    photoInput.addEventListener('change', function(){
+      selectedFiles = Array.prototype.slice.call(photoInput.files);
+      renderFileList();
+    });
+
+    function renderFileList(){
+      uploadFilelist.innerHTML = selectedFiles.map(function(f, i){
+        var sizeOk = f.size <= MAX_UPLOAD_MB * 1024 * 1024;
+        var sizeMb = (f.size / (1024*1024)).toFixed(1);
+        return '<li data-index="' + i + '">' +
+          '<span>' + escapeHtml(f.name) + '</span>' +
+          '<span class="file-state">' + (sizeOk ? (sizeMb + ' MB') : 'Muy pesado') + '</span>' +
+          '</li>';
+      }).join('');
+      var anyValid = selectedFiles.some(function(f){ return f.size <= MAX_UPLOAD_MB * 1024 * 1024; });
+      uploadSubmit.disabled = !anyValid;
+    }
+
+    function fileToBase64(file){
+      return new Promise(function(resolve, reject){
+        var reader = new FileReader();
+        reader.onload = function(){ resolve(reader.result.split(',')[1]); };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function setFileState(index, text){
+      var li = uploadFilelist.querySelector('li[data-index="' + index + '"] .file-state');
+      if(li) li.textContent = text;
+    }
+
+    uploadSubmit.addEventListener('click', function(){
+      var toUpload = selectedFiles
+        .map(function(f, i){ return { file: f, index: i }; })
+        .filter(function(item){ return item.file.size <= MAX_UPLOAD_MB * 1024 * 1024; });
+
+      if(toUpload.length === 0) return;
+
+      uploadSubmit.disabled = true;
+      photoInput.disabled = true;
+      uploadStatus.textContent = 'Subiendo ' + toUpload.length + (toUpload.length === 1 ? ' foto…' : ' fotos…');
+
+      var done = 0, failed = 0;
+
+      var chain = toUpload.reduce(function(promise, item){
+        return promise.then(function(){
+          setFileState(item.index, 'Subiendo…');
+          return fileToBase64(item.file)
+            .then(function(base64){
+              return fetch(cfg.uploadWebAppUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                  filename: item.file.name,
+                  mimeType: item.file.type || 'application/octet-stream',
+                  base64: base64
+                })
+              });
+            })
+            .then(function(r){ return r.json(); })
+            .then(function(res){
+              if(res.success){
+                done++;
+                setFileState(item.index, '✓ Listo');
+              } else {
+                failed++;
+                setFileState(item.index, 'Error');
+              }
+            })
+            .catch(function(){
+              failed++;
+              setFileState(item.index, 'Error');
+            });
+        });
+      }, Promise.resolve());
+
+      chain.then(function(){
+        if(failed === 0){
+          uploadStatus.textContent = '¡Listo! Se subieron ' + done + (done === 1 ? ' foto.' : ' fotos.') + ' Gracias por compartirlas.';
+        } else {
+          uploadStatus.textContent = done + ' subidas, ' + failed + ' con error. Intenta de nuevo con las que fallaron.';
+        }
+        photoInput.disabled = false;
+        photoInput.value = '';
+        selectedFiles = [];
+        uploadSubmit.disabled = true;
+      });
+    });
   }
 
   /* ---------------- CAROUSEL ---------------- */
