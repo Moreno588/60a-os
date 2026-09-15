@@ -378,8 +378,40 @@
   }
   .carousel-dots button.active{ background:var(--gold-light); }
 
+  .uploadphotos{ background:var(--ink); }
+
+  /* ---------- PLAYLIST ---------- */
+  .playlist{ background:var(--cream); text-align:center; }
+  .playlist-text{
+    max-width:480px;
+    margin:24px auto 0;
+    font-style:italic;
+    color:#3a3025;
+  }
+  .playlist-embed{
+    max-width:640px;
+    margin:36px auto 0;
+    aspect-ratio:16/9;
+    border:1px solid var(--line);
+    background:#12212e;
+  }
+  .playlist-embed iframe{
+    width:100%;
+    height:100%;
+    display:block;
+    border:0;
+  }
+  .playlist .btn{
+    margin-top:32px;
+    border-color:var(--gold);
+    color:var(--rosewood);
+  }
+  .playlist .btn:hover{
+    background:var(--gold);
+    color:var(--cream);
+  }
   .upload-cta{
-    margin-top:52px;
+    margin-top:0;
     text-align:center;
   }
   .upload-cta p{
@@ -783,15 +815,6 @@
       <div class="carousel-nav next" id="carousel-next" aria-label="Siguiente">&#8250;</div>
       <div class="carousel-dots" id="carousel-dots"></div>
     </div>
-
-    <div class="upload-cta">
-      <p>¿Tomaste fotos durante la celebración? Compártelas aquí y hazlas parte de este álbum.</p>
-      <div class="upload-buttons">
-        <a href="#" class="btn disabled" id="upload-btn">Subir mis fotos</a>
-        <a href="#" class="btn btn-outline disabled" id="view-btn">Ver fotos de los invitados</a>
-      </div>
-      <div class="rsvp-note" id="upload-note">Muy pronto habilitaremos este espacio.</div>
-    </div>
   </div>
 </section>
 
@@ -921,6 +944,42 @@
         <div class="sub">Largo o semilargo</div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- SUBIR FOTOS -->
+<section class="uploadphotos">
+  <div class="wrap">
+    <div class="upload-cta">
+      <p>¿Tomaste fotos durante la celebración? Compártelas aquí y hazlas parte de este álbum.</p>
+      <div class="upload-buttons">
+        <a href="#" class="btn disabled" id="upload-btn">Subir mis fotos</a>
+        <a href="#" class="btn btn-outline disabled" id="view-btn">Ver fotos de los invitados</a>
+      </div>
+      <div class="rsvp-note" id="upload-note">Muy pronto habilitaremos este espacio.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PLAYLIST -->
+<section class="playlist">
+  <div class="wrap">
+    <h2 class="section-title">Suena la fiesta</h2>
+    <div class="ornament"><svg viewBox="0 0 64 20"><path d="M0 10 H24 M40 10 H64" /><circle cx="32" cy="10" r="4"/></svg></div>
+    <p class="playlist-text">Ayúdanos a armar la música de la celebración. Agrega esa canción que no puede faltar para bailar con Ana Sara y Calixto.</p>
+
+    <div class="playlist-embed">
+      <iframe
+        src="https://www.youtube.com/embed/videoseries?list=PLDOg5PmSH1sk"
+        title="Playlist de la celebración"
+        loading="lazy"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <a href="https://www.youtube.com/playlist?list=PLDOg5PmSH1sk&jct=iZbrniNPXRwFkSRcQGqmhQ" class="btn" target="_blank" rel="noopener">Agregar una canción</a>
   </div>
 </section>
 
