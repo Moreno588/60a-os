@@ -16,7 +16,11 @@
 
     // Link del Google Formulario de confirmación de asistencia.
     // Cuando Jose lo tenga, se pega aquí entre las comillas.
-    rsvpFormUrl: "",
+    rsvpFormUrl: "https://forms.gle/smt1Qi9g69FosGEq8",
+
+    // Link CSV publicado de la hoja de respuestas del formulario, para mostrar
+    // en la página quién asistirá y los mensajes que dejan los invitados.
+    rsvpSheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRs4A_yhE9k5U8hzW1NlnoLQtRmsIZ72LpJiEehTIcb35GSJAHFvYVnVDVZ6saCFGLi6ADX1Mx7-Ht/pub?output=csv",
 
     // Link de la carpeta de Google Drive donde los invitados subirán SUS fotos.
     // Esa carpeta debe compartirse como "Cualquier persona con el enlace" -> "Editor"
@@ -473,6 +477,99 @@
     color:rgba(251,246,236,0.6);
   }
 
+  /* ---------- CONFIRMACIONES Y MENSAJES ---------- */
+  .confirmaciones{ background:var(--cream); }
+  .confirm-status{
+    text-align:center;
+    margin-top:40px;
+    font-style:italic;
+    color:#8a7a63;
+    font-size:0.95rem;
+  }
+  .confirm-grid{
+    display:none;
+    margin-top:44px;
+    gap:40px;
+    max-width:700px;
+    margin-left:auto; margin-right:auto;
+    grid-template-columns:1fr;
+  }
+  @media(min-width:600px){
+    .confirm-grid{ grid-template-columns:1fr 1fr; }
+  }
+  .confirm-col-title{
+    text-align:center;
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:1.3rem;
+    color:var(--rosewood);
+    margin-bottom:16px;
+    padding-bottom:10px;
+    border-bottom:1px solid var(--line);
+  }
+  .confirm-list{
+    list-style:none;
+    margin:0; padding:0;
+    text-align:center;
+  }
+  .confirm-list li{
+    padding:8px 0;
+    font-size:0.98rem;
+    color:#3a3025;
+    border-bottom:1px dashed var(--line);
+  }
+  .confirm-list li:last-child{ border-bottom:none; }
+  .confirm-list .plus{
+    font-size:0.8rem;
+    color:#8a7a63;
+    font-style:italic;
+  }
+  .confirm-list.empty-msg{
+    font-style:italic;
+    color:#8a7a63;
+    font-size:0.9rem;
+    text-align:center;
+  }
+
+  .messages-wrap{ display:none; margin-top:72px; }
+  .messages-title{
+    text-align:center;
+    font-style:italic;
+    font-size:1.7rem;
+    color:var(--ink);
+    margin-bottom:36px;
+  }
+  .messages-grid{
+    columns:1;
+    gap:22px;
+    max-width:900px;
+    margin:0 auto;
+  }
+  @media(min-width:640px){ .messages-grid{ columns:2; } }
+  @media(min-width:960px){ .messages-grid{ columns:3; } }
+  .message-card{
+    break-inside:avoid;
+    background:var(--parchment);
+    border:1px solid var(--line);
+    padding:24px 22px;
+    margin-bottom:22px;
+    text-align:center;
+  }
+  .message-card p{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:1.15rem;
+    color:#3a3025;
+    line-height:1.5;
+    margin:0 0 12px;
+  }
+  .message-card .msg-name{
+    font-family:'Jost', sans-serif;
+    font-size:0.75rem;
+    letter-spacing:0.06em;
+    color:var(--gold);
+  }
+
   /* ---------- DRESSCODE ---------- */
   .dresscode{ background:var(--cream); }
   .dresscode-grid{
@@ -714,6 +811,32 @@
   </div>
 </section>
 
+<!-- CONFIRMACIONES Y MENSAJES -->
+<section class="confirmaciones">
+  <div class="wrap">
+    <h2 class="section-title">Quiénes nos acompañarán</h2>
+    <div class="ornament"><svg viewBox="0 0 64 20"><path d="M0 10 H24 M40 10 H64" /><circle cx="32" cy="10" r="4"/></svg></div>
+
+    <div class="confirm-status" id="confirm-status">Cargando confirmaciones…</div>
+
+    <div class="confirm-grid" id="confirm-grid">
+      <div class="confirm-col">
+        <div class="confirm-col-title">Asistirán</div>
+        <ul class="confirm-list" id="confirm-yes"></ul>
+      </div>
+      <div class="confirm-col">
+        <div class="confirm-col-title">No podrán estar</div>
+        <ul class="confirm-list" id="confirm-no"></ul>
+      </div>
+    </div>
+
+    <div class="messages-wrap" id="messages-wrap">
+      <h3 class="messages-title">Mensajes con cariño</h3>
+      <div class="messages-grid" id="messages-grid"></div>
+    </div>
+  </div>
+</section>
+
 <!-- CÓDIGO DE VESTIMENTA -->
 <section class="dresscode">
   <div class="wrap">
@@ -935,6 +1058,116 @@
     .catch(function(err){
       showStatus('Ocurrió un error cargando las fotos. Revisa tu conexión o la configuración de la API Key.');
     });
+
+  /* ---------------- CONFIRMACIONES Y MENSAJES ---------------- */
+  function parseCSV(text){
+    var rows = [], row = [], field = '', inQuotes = false;
+    for(var i=0; i<text.length; i++){
+      var c = text[i];
+      if(inQuotes){
+        if(c === '"'){
+          if(text[i+1] === '"'){ field += '"'; i++; }
+          else { inQuotes = false; }
+        } else { field += c; }
+      } else {
+        if(c === '"'){ inQuotes = true; }
+        else if(c === ','){ row.push(field); field = ''; }
+        else if(c === '\n' || c === '\r'){
+          if(c === '\r' && text[i+1] === '\n') i++;
+          row.push(field); field = ''; rows.push(row); row = [];
+        } else { field += c; }
+      }
+    }
+    if(field.length > 0 || row.length > 0){ row.push(field); rows.push(row); }
+    return rows.filter(function(r){ return r.some(function(v){ return v.trim() !== ''; }); });
+  }
+
+  function findCol(headers, keywords){
+    for(var i=0; i<headers.length; i++){
+      for(var k=0; k<keywords.length; k++){
+        if(headers[i].indexOf(keywords[k]) !== -1) return i;
+      }
+    }
+    return -1;
+  }
+
+  var confirmStatus = document.getElementById('confirm-status');
+  var confirmGrid = document.getElementById('confirm-grid');
+  var yesListEl = document.getElementById('confirm-yes');
+  var noListEl = document.getElementById('confirm-no');
+  var messagesWrap = document.getElementById('messages-wrap');
+  var messagesGrid = document.getElementById('messages-grid');
+
+  if(!cfg.rsvpSheetCsvUrl || cfg.rsvpSheetCsvUrl.trim() === ""){
+    confirmStatus.textContent = 'Muy pronto veremos aquí quiénes nos acompañarán.';
+  } else {
+    fetch(cfg.rsvpSheetCsvUrl)
+      .then(function(r){ return r.text(); })
+      .then(function(text){
+        var rows = parseCSV(text);
+        if(rows.length < 2){
+          confirmStatus.textContent = 'Todavía no hay confirmaciones registradas.';
+          return;
+        }
+        var headers = rows[0].map(function(h){ return h.trim().toLowerCase(); });
+        var nameIdx = findCol(headers, ['nombre']);
+        var attendIdx = findCol(headers, ['acompañarás', 'acompanaras']);
+        var companionsIdx = findCol(headers, ['número', 'numero', 'acompañantes', 'acompanantes']);
+        var msgIdx = findCol(headers, ['mensaje']);
+
+        var yes = [], no = [], messages = [];
+        for(var r=1; r<rows.length; r++){
+          var row = rows[r];
+          var name = (nameIdx > -1 ? row[nameIdx] : '').trim();
+          var attend = (attendIdx > -1 ? row[attendIdx] : '').trim();
+          var companions = (companionsIdx > -1 ? row[companionsIdx] : '').trim();
+          var msg = (msgIdx > -1 ? row[msgIdx] : '').trim();
+          if(!name) continue;
+
+          if(attend.indexOf('No podré') !== -1 || attend.toLowerCase().indexOf('no podr') !== -1){
+            no.push(name);
+          } else if(attend.indexOf('Sí') !== -1 || attend.toLowerCase().indexOf('si,') !== -1 || attend.toLowerCase().indexOf('sí,') !== -1){
+            var withCompanion = attend.toLowerCase().indexOf('acompañante') !== -1;
+            yes.push({ name: name, extra: (withCompanion && companions) ? ('+' + companions) : '' });
+          }
+          if(msg){ messages.push({ name: name, msg: msg }); }
+        }
+
+        confirmStatus.style.display = 'none';
+        confirmGrid.style.display = 'grid';
+
+        if(yes.length === 0){
+          yesListEl.innerHTML = '<li class="empty-msg">Aún no hay confirmaciones</li>';
+        } else {
+          yesListEl.innerHTML = yes.map(function(g){
+            return '<li>' + escapeHtml(g.name) + (g.extra ? ' <span class="plus">' + escapeHtml(g.extra) + '</span>' : '') + '</li>';
+          }).join('');
+        }
+
+        if(no.length === 0){
+          noListEl.innerHTML = '<li class="empty-msg">—</li>';
+        } else {
+          noListEl.innerHTML = no.map(function(n){ return '<li>' + escapeHtml(n) + '</li>'; }).join('');
+        }
+
+        if(messages.length > 0){
+          messagesWrap.style.display = 'block';
+          messagesGrid.innerHTML = messages.map(function(m){
+            return '<div class="message-card"><p>“' + escapeHtml(m.msg) + '”</p><div class="msg-name">' + escapeHtml(m.name) + '</div></div>';
+          }).join('');
+        }
+      })
+      .catch(function(err){
+        confirmStatus.textContent = 'No se pudieron cargar las confirmaciones en este momento.';
+      });
+  }
+
+  function escapeHtml(str){
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
 })();
 </script>
 
