@@ -382,24 +382,25 @@
 
   /* ---------- PLAYLIST ---------- */
   .playlist{ background:var(--cream); text-align:center; }
+  .playlist-icon{
+    width:64px;
+    margin:32px auto 0;
+  }
+  .playlist-icon svg{ width:100%; height:auto; display:block; }
+  .playlist-icon rect{
+    fill:none;
+    stroke:var(--gold);
+    stroke-width:1.4;
+  }
+  .playlist-icon path{
+    fill:var(--rosewood);
+    stroke:none;
+  }
   .playlist-text{
     max-width:480px;
-    margin:24px auto 0;
+    margin:20px auto 0;
     font-style:italic;
     color:#3a3025;
-  }
-  .playlist-embed{
-    max-width:640px;
-    margin:36px auto 0;
-    aspect-ratio:16/9;
-    border:1px solid var(--line);
-    background:#12212e;
-  }
-  .playlist-embed iframe{
-    width:100%;
-    height:100%;
-    display:block;
-    border:0;
   }
   .playlist .btn{
     margin-top:32px;
@@ -481,6 +482,7 @@
     text-align:center;
   }
   .rsvp .section-title{ color:var(--cream); }
+  .uploadphotos .section-title{ color:var(--parchment); }
   .rsvp p{
     max-width:480px;
     margin:20px auto 0;
@@ -518,64 +520,64 @@
     color:#8a7a63;
     font-size:0.95rem;
   }
-  .confirm-grid{
+  .confirm-stats{
     display:none;
+    justify-content:center;
+    gap:70px;
     margin-top:44px;
-    gap:40px;
-    max-width:700px;
-    margin-left:auto; margin-right:auto;
-    grid-template-columns:1fr;
+    flex-wrap:wrap;
   }
-  @media(min-width:600px){
-    .confirm-grid{ grid-template-columns:1fr 1fr; }
-  }
-  .confirm-col-title{
-    text-align:center;
+  .confirm-stat{ text-align:center; }
+  .confirm-stat-num{
     font-family:'Cormorant Garamond', serif;
     font-style:italic;
-    font-size:1.3rem;
+    font-size:3rem;
     color:var(--rosewood);
-    margin-bottom:16px;
-    padding-bottom:10px;
+    line-height:1;
+  }
+  .confirm-stat-label{
+    margin-top:8px;
+    font-size:0.76rem;
+    letter-spacing:0.08em;
+    color:#8a7a63;
+  }
+  .confirm-marquee{
+    display:none;
+    margin-top:48px;
+    overflow:hidden;
+    border-top:1px solid var(--line);
     border-bottom:1px solid var(--line);
+    padding:16px 0;
   }
-  .confirm-list{
-    list-style:none;
-    margin:0; padding:0;
-    text-align:center;
+  .confirm-marquee-track{
+    display:flex;
+    width:max-content;
+    animation:marquee 28s linear infinite;
   }
-  .confirm-list li{
-    padding:8px 0;
-    font-size:0.98rem;
+  .confirm-marquee-track:hover{ animation-play-state:paused; }
+  .confirm-marquee-track span{
+    padding:0 20px;
+    white-space:nowrap;
+    font-style:italic;
+    font-size:1.02rem;
     color:#3a3025;
-    border-bottom:1px dashed var(--line);
+    position:relative;
   }
-  .confirm-list li:last-child{ border-bottom:none; }
-  .confirm-list .plus{
-    font-size:0.8rem;
-    color:#8a7a63;
-    font-style:italic;
+  .confirm-marquee-track span::after{
+    content:"❤";
+    margin-left:20px;
+    color:var(--gold);
+    font-size:0.7rem;
   }
-  .confirm-list.empty-msg{
-    font-style:italic;
-    color:#8a7a63;
-    font-size:0.9rem;
-    text-align:center;
+  @keyframes marquee{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(-50%); }
   }
 
-  .messages-wrap{ display:none; margin-top:72px; }
-  .messages-title{
-    text-align:center;
-    font-style:italic;
-    font-size:1.7rem;
-    color:var(--ink);
-    margin-bottom:36px;
-  }
-  .messages-carousel{
-    position:relative;
-    max-width:1000px;
-    margin:0 auto;
-  }
+  /* ---------- MENSAJES ---------- */
+  .messages-section{ background:var(--rosewood); display:none; }
+  .messages-wrap{ display:none; text-align:center; }
+  .messages-wrap .section-title{ color:var(--cream); }
   .messages-track{
     display:flex;
     gap:20px;
@@ -588,13 +590,18 @@
   .messages-track::-webkit-scrollbar{ height:6px; }
   .messages-track::-webkit-scrollbar-thumb{ background:var(--gold-light); border-radius:4px; }
   .messages-track::-webkit-scrollbar-track{ background:transparent; }
+  .messages-carousel{
+    position:relative;
+    max-width:1000px;
+    margin:44px auto 0;
+  }
   .message-card{
     flex:0 0 auto;
     width:78%;
     max-width:300px;
     scroll-snap-align:start;
-    background:var(--parchment);
-    border:1px solid var(--line);
+    background:var(--cream);
+    border:1px solid rgba(217,185,138,0.3);
     padding:24px 22px;
     text-align:center;
   }
@@ -612,7 +619,7 @@
     font-family:'Jost', sans-serif;
     font-size:0.75rem;
     letter-spacing:0.06em;
-    color:var(--gold);
+    color:var(--rosewood);
   }
   .carousel-nav.msg-prev{ left:-8px; }
   .carousel-nav.msg-next{ right:-8px; }
@@ -853,7 +860,7 @@
   </div>
 </section>
 
-<!-- CONFIRMACIONES Y MENSAJES -->
+<!-- CONFIRMACIONES -->
 <section class="confirmaciones">
   <div class="wrap">
     <h2 class="section-title">Quiénes nos acompañarán</h2>
@@ -861,19 +868,29 @@
 
     <div class="confirm-status" id="confirm-status">Cargando confirmaciones…</div>
 
-    <div class="confirm-grid" id="confirm-grid">
-      <div class="confirm-col">
-        <div class="confirm-col-title">Asistirán</div>
-        <ul class="confirm-list" id="confirm-yes"></ul>
+    <div class="confirm-stats" id="confirm-stats">
+      <div class="confirm-stat">
+        <div class="confirm-stat-num" id="stat-yes">0</div>
+        <div class="confirm-stat-label">Asistirán</div>
       </div>
-      <div class="confirm-col">
-        <div class="confirm-col-title">No podrán estar</div>
-        <ul class="confirm-list" id="confirm-no"></ul>
+      <div class="confirm-stat">
+        <div class="confirm-stat-num" id="stat-no">0</div>
+        <div class="confirm-stat-label">No podrán estar</div>
       </div>
     </div>
 
+    <div class="confirm-marquee" id="confirm-marquee">
+      <div class="confirm-marquee-track" id="confirm-marquee-track"></div>
+    </div>
+  </div>
+</section>
+
+<!-- MENSAJES -->
+<section class="messages-section" id="messages-section">
+  <div class="wrap">
     <div class="messages-wrap" id="messages-wrap">
-      <h3 class="messages-title">Mensajes con cariño</h3>
+      <h2 class="section-title">Mensajes con cariño</h2>
+      <div class="ornament"><svg viewBox="0 0 64 20"><path d="M0 10 H24 M40 10 H64" /><circle cx="32" cy="10" r="4"/></svg></div>
       <div class="messages-carousel">
         <div class="messages-track" id="messages-grid"></div>
         <div class="carousel-nav msg-prev" id="msg-prev" aria-label="Anteriores">&#8249;</div>
@@ -947,10 +964,31 @@
   </div>
 </section>
 
+<!-- PLAYLIST -->
+<section class="playlist">
+  <div class="wrap">
+    <h2 class="section-title">Suena la fiesta</h2>
+    <div class="ornament"><svg viewBox="0 0 64 20"><path d="M0 10 H24 M40 10 H64" /><circle cx="32" cy="10" r="4"/></svg></div>
+
+    <div class="playlist-icon">
+      <svg viewBox="0 0 64 46">
+        <rect x="1" y="1" width="62" height="44" rx="14" />
+        <path d="M26 14 L44 23 L26 32 Z" />
+      </svg>
+    </div>
+
+    <p class="playlist-text">Ayúdanos a armar la música de la celebración. Agrega esa canción que no puede faltar para bailar con Ana Sara y Calixto.</p>
+
+    <a href="https://www.youtube.com/playlist?list=PLDOg5PmSH1sk&jct=iZbrniNPXRwFkSRcQGqmhQ" class="btn" target="_blank" rel="noopener">Agregar una canción</a>
+  </div>
+</section>
+
 <!-- SUBIR FOTOS -->
 <section class="uploadphotos">
   <div class="wrap">
     <div class="upload-cta">
+      <h2 class="section-title">¡Que no falte tu foto!</h2>
+      <div class="ornament"><svg viewBox="0 0 64 20"><path d="M0 10 H24 M40 10 H64" /><circle cx="32" cy="10" r="4"/></svg></div>
       <p>¿Tomaste fotos durante la celebración? Compártelas aquí y hazlas parte de este álbum.</p>
       <div class="upload-buttons">
         <a href="#" class="btn disabled" id="upload-btn">Subir mis fotos</a>
@@ -958,28 +996,6 @@
       </div>
       <div class="rsvp-note" id="upload-note">Muy pronto habilitaremos este espacio.</div>
     </div>
-  </div>
-</section>
-
-<!-- PLAYLIST -->
-<section class="playlist">
-  <div class="wrap">
-    <h2 class="section-title">Suena la fiesta</h2>
-    <div class="ornament"><svg viewBox="0 0 64 20"><path d="M0 10 H24 M40 10 H64" /><circle cx="32" cy="10" r="4"/></svg></div>
-    <p class="playlist-text">Ayúdanos a armar la música de la celebración. Agrega esa canción que no puede faltar para bailar con Ana Sara y Calixto.</p>
-
-    <div class="playlist-embed">
-      <iframe
-        src="https://www.youtube.com/embed/videoseries?list=PLDOg5PmSH1sk"
-        title="Playlist de la celebración"
-        loading="lazy"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen>
-      </iframe>
-    </div>
-
-    <a href="https://www.youtube.com/playlist?list=PLDOg5PmSH1sk&jct=iZbrniNPXRwFkSRcQGqmhQ" class="btn" target="_blank" rel="noopener">Agregar una canción</a>
   </div>
 </section>
 
@@ -1174,9 +1190,12 @@
   }
 
   var confirmStatus = document.getElementById('confirm-status');
-  var confirmGrid = document.getElementById('confirm-grid');
-  var yesListEl = document.getElementById('confirm-yes');
-  var noListEl = document.getElementById('confirm-no');
+  var confirmStats = document.getElementById('confirm-stats');
+  var statYesEl = document.getElementById('stat-yes');
+  var statNoEl = document.getElementById('stat-no');
+  var confirmMarquee = document.getElementById('confirm-marquee');
+  var marqueeTrack = document.getElementById('confirm-marquee-track');
+  var messagesSection = document.getElementById('messages-section');
   var messagesWrap = document.getElementById('messages-wrap');
   var messagesGrid = document.getElementById('messages-grid');
   var msgPrev = document.getElementById('msg-prev');
@@ -1218,29 +1237,29 @@
             no.push(name);
           } else if(attend.indexOf('Sí') !== -1 || attend.toLowerCase().indexOf('si,') !== -1 || attend.toLowerCase().indexOf('sí,') !== -1){
             var withCompanion = attend.toLowerCase().indexOf('acompañante') !== -1;
-            yes.push({ name: name, extra: (withCompanion && companions) ? ('+' + companions) : '' });
+            var extraCount = (withCompanion && companions) ? (1 + parseInt(companions, 10) || 2) : 1;
+            yes.push({ name: name, count: extraCount });
           }
           if(msg){ messages.push({ name: name, msg: msg }); }
         }
 
         confirmStatus.style.display = 'none';
-        confirmGrid.style.display = 'grid';
+        confirmStats.style.display = 'flex';
 
-        if(yes.length === 0){
-          yesListEl.innerHTML = '<li class="empty-msg">Aún no hay confirmaciones</li>';
-        } else {
-          yesListEl.innerHTML = yes.map(function(g){
-            return '<li>' + escapeHtml(g.name) + (g.extra ? ' <span class="plus">' + escapeHtml(g.extra) + '</span>' : '') + '</li>';
-          }).join('');
-        }
+        var totalYes = yes.reduce(function(sum, g){ return sum + g.count; }, 0);
+        statYesEl.textContent = totalYes;
+        statNoEl.textContent = no.length;
 
-        if(no.length === 0){
-          noListEl.innerHTML = '<li class="empty-msg">—</li>';
-        } else {
-          noListEl.innerHTML = no.map(function(n){ return '<li>' + escapeHtml(n) + '</li>'; }).join('');
+        if(yes.length > 0){
+          confirmMarquee.style.display = 'block';
+          var names = yes.map(function(g){ return escapeHtml(g.name); });
+          var namesHtml = names.map(function(n){ return '<span>' + n + '</span>'; }).join('');
+          // se duplica la lista para que el desplazamiento sea continuo
+          marqueeTrack.innerHTML = namesHtml + namesHtml;
         }
 
         if(messages.length > 0){
+          messagesSection.style.display = 'block';
           messagesWrap.style.display = 'block';
           messagesGrid.innerHTML = messages.map(function(m){
             return '<div class="message-card"><p>“' + escapeHtml(m.msg) + '”</p><div class="msg-name">' + escapeHtml(m.name) + '</div></div>';
