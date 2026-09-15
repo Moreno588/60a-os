@@ -211,7 +211,7 @@
 
   /* ---------- VOWS / INVITACIÓN ---------- */
   .vows{
-    background:var(--ink);
+    background:var(--rosewood);
     color:var(--parchment);
     text-align:center;
     padding:88px 0;
@@ -381,7 +381,8 @@
   .uploadphotos{ background:var(--ink); }
 
   /* ---------- PLAYLIST ---------- */
-  .playlist{ background:var(--cream); text-align:center; }
+  .playlist{ background:var(--rosewood); text-align:center; }
+  .playlist .section-title{ color:var(--cream); }
   .playlist-icon{
     width:64px;
     margin:32px auto 0;
@@ -389,27 +390,18 @@
   .playlist-icon svg{ width:100%; height:auto; display:block; }
   .playlist-icon rect{
     fill:none;
-    stroke:var(--gold);
+    stroke:var(--gold-light);
     stroke-width:1.4;
   }
   .playlist-icon path{
-    fill:var(--rosewood);
+    fill:var(--cream);
     stroke:none;
   }
   .playlist-text{
     max-width:480px;
     margin:20px auto 0;
     font-style:italic;
-    color:#3a3025;
-  }
-  .playlist .btn{
-    margin-top:32px;
-    border-color:var(--gold);
-    color:var(--rosewood);
-  }
-  .playlist .btn:hover{
-    background:var(--gold);
-    color:var(--cream);
+    color:rgba(251,246,236,0.85);
   }
   .upload-cta{
     margin-top:0;
@@ -705,6 +697,7 @@
     font-size:0.85rem;
     font-style:italic;
   }
+  footer .ornament{ margin:0 auto 26px; opacity:0.9; }
   footer .monogram{
     font-family:'Dancing Script', cursive;
     font-weight:700;
@@ -1000,6 +993,7 @@
 </section>
 
 <footer>
+  <div class="ornament"><svg viewBox="0 0 64 20"><path d="M0 10 H24 M40 10 H64" /><circle cx="32" cy="10" r="4"/></svg></div>
   <div class="monogram">A &amp; C</div>
   1966 · 2026 — 60 años de amor
 </footer>
