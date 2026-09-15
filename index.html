@@ -32,6 +32,10 @@
     // en la carpeta de Drive, sin darles acceso directo a la carpeta.
     uploadWebAppUrl: "https://script.google.com/macros/s/AKfycbyZrHXKFhyU0fuC1uahJGEQq9RVNKdmIoTT1NNPHjUcvwFNA44N1T7YfsPBmWEa5_Ub7g/exec",
 
+    // Fecha desde la que se habilita el formulario de subir fotos
+    // (antes de esa fecha se muestra un aviso en vez del formulario).
+    uploadOpensISO: "2026-12-20T00:00:00-05:00",
+
     // Link para que los invitados solo VEAN las fotos que ya se han subido
     // (comparte esa carpeta como "Lector" para que nadie pueda modificarla).
     guestViewUrl: "https://drive.google.com/drive/folders/1VH_KboA9cm62h766fidzsa-PQZ-NiXAa?usp=sharing",
@@ -756,6 +760,29 @@
     stroke:none;
   }
 
+  /* ---------- LLUVIA DE SOBRES ---------- */
+  .sobres{ background:var(--cream); text-align:center; }
+  .sobres-icon{
+    width:60px;
+    margin:30px auto 0;
+  }
+  .sobres-icon svg{ width:100%; height:auto; display:block; }
+  .sobres-icon rect,
+  .sobres-icon path{
+    stroke:var(--gold);
+    fill:none;
+    stroke-width:1.4;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .sobres-text{
+    max-width:480px;
+    margin:22px auto 0;
+    font-style:italic;
+    font-size:1.05rem;
+    color:#3a3025;
+  }
+
   /* ---------- FOOTER ---------- */
   footer{
     background:var(--ink);
@@ -1073,6 +1100,23 @@
   </div>
 </section>
 
+<!-- LLUVIA DE SOBRES -->
+<section class="sobres">
+  <div class="wrap">
+    <h2 class="section-title">Lluvia de sobres</h2>
+    <div class="ornament"><svg viewBox="0 0 64 20"><path d="M0 10 H24 M40 10 H64" /><circle cx="32" cy="10" r="4"/></svg></div>
+
+    <div class="sobres-icon">
+      <svg viewBox="0 0 80 60">
+        <rect x="2" y="2" width="76" height="56" rx="3" />
+        <path d="M4 6 L40 36 L76 6" />
+      </svg>
+    </div>
+
+    <p class="sobres-text">Tu cariño y tu presencia ya son el mejor regalo. Pero si además quieres consentir a Ana Sara y Calixto, no falta quien diga que aquí también se acepta... ¡que llueva un sobrecito! 💌☔</p>
+  </div>
+</section>
+
 <footer>
   <div class="footer-line"></div>
   <div class="monogram">A &amp; C</div>
@@ -1115,8 +1159,14 @@
   /* ---------------- SUBIR FOTOS (INVITADOS) ---------------- */
   var uploadNote = document.getElementById('upload-note');
   var viewBtn = document.getElementById('view-btn');
-  var viewReady = cfg.guestViewUrl && cfg.guestViewUrl.trim() !== "";
-  var uploadReady = cfg.uploadWebAppUrl && cfg.uploadWebAppUrl.trim() !== "";
+  var uploadConfigured = cfg.uploadWebAppUrl && cfg.uploadWebAppUrl.trim() !== "";
+
+  var uploadIsOpen = true;
+  if(cfg.uploadOpensISO && cfg.uploadOpensISO.trim() !== ""){
+    uploadIsOpen = Date.now() >= new Date(cfg.uploadOpensISO).getTime();
+  }
+  var uploadReady = uploadConfigured && uploadIsOpen;
+  var viewReady = cfg.guestViewUrl && cfg.guestViewUrl.trim() !== "" && uploadIsOpen;
 
   if(viewReady){
     viewBtn.href = cfg.guestViewUrl;
@@ -1126,6 +1176,12 @@
   }
   if(uploadReady || viewReady){
     uploadNote.style.display = 'none';
+  }
+  if(!uploadIsOpen && (uploadConfigured || (cfg.guestViewUrl && cfg.guestViewUrl.trim() !== ""))){
+    uploadNote.style.display = 'block';
+    var openDate = new Date(cfg.uploadOpensISO);
+    var openDateStr = openDate.toLocaleDateString('es-CO', { day: 'numeric', month: 'long' });
+    uploadNote.textContent = 'Podrás subir y ver las fotos aquí a partir del ' + openDateStr + '. ¡Guárdalas mientras tanto! 💛';
   }
 
   var photoInput = document.getElementById('photo-input');
