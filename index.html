@@ -539,22 +539,35 @@
     color:var(--ink);
     margin-bottom:36px;
   }
-  .messages-grid{
-    columns:1;
-    gap:22px;
-    max-width:900px;
+  .messages-carousel{
+    position:relative;
+    max-width:1000px;
     margin:0 auto;
   }
-  @media(min-width:640px){ .messages-grid{ columns:2; } }
-  @media(min-width:960px){ .messages-grid{ columns:3; } }
+  .messages-track{
+    display:flex;
+    gap:20px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    scroll-behavior:smooth;
+    padding:6px 6px 20px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .messages-track::-webkit-scrollbar{ height:6px; }
+  .messages-track::-webkit-scrollbar-thumb{ background:var(--gold-light); border-radius:4px; }
+  .messages-track::-webkit-scrollbar-track{ background:transparent; }
   .message-card{
-    break-inside:avoid;
+    flex:0 0 auto;
+    width:78%;
+    max-width:300px;
+    scroll-snap-align:start;
     background:var(--parchment);
     border:1px solid var(--line);
     padding:24px 22px;
-    margin-bottom:22px;
     text-align:center;
   }
+  @media(min-width:640px){ .message-card{ width:44%; } }
+  @media(min-width:960px){ .message-card{ width:30%; } }
   .message-card p{
     font-family:'Cormorant Garamond', serif;
     font-style:italic;
@@ -568,6 +581,12 @@
     font-size:0.75rem;
     letter-spacing:0.06em;
     color:var(--gold);
+  }
+  .carousel-nav.msg-prev{ left:-8px; }
+  .carousel-nav.msg-next{ right:-8px; }
+  @media(min-width:640px){
+    .carousel-nav.msg-prev{ left:-52px; }
+    .carousel-nav.msg-next{ right:-52px; }
   }
 
   /* ---------- DRESSCODE ---------- */
@@ -832,7 +851,11 @@
 
     <div class="messages-wrap" id="messages-wrap">
       <h3 class="messages-title">Mensajes con cariño</h3>
-      <div class="messages-grid" id="messages-grid"></div>
+      <div class="messages-carousel">
+        <div class="messages-track" id="messages-grid"></div>
+        <div class="carousel-nav msg-prev" id="msg-prev" aria-label="Anteriores">&#8249;</div>
+        <div class="carousel-nav msg-next" id="msg-next" aria-label="Siguientes">&#8250;</div>
+      </div>
     </div>
   </div>
 </section>
@@ -1097,6 +1120,14 @@
   var noListEl = document.getElementById('confirm-no');
   var messagesWrap = document.getElementById('messages-wrap');
   var messagesGrid = document.getElementById('messages-grid');
+  var msgPrev = document.getElementById('msg-prev');
+  var msgNext = document.getElementById('msg-next');
+  msgPrev.addEventListener('click', function(){
+    messagesGrid.scrollBy({ left: -messagesGrid.clientWidth * 0.9, behavior: 'smooth' });
+  });
+  msgNext.addEventListener('click', function(){
+    messagesGrid.scrollBy({ left: messagesGrid.clientWidth * 0.9, behavior: 'smooth' });
+  });
 
   if(!cfg.rsvpSheetCsvUrl || cfg.rsvpSheetCsvUrl.trim() === ""){
     confirmStatus.textContent = 'Muy pronto veremos aquí quiénes nos acompañarán.';
